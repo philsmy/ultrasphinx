@@ -291,10 +291,15 @@ module Ultrasphinx
               association = get_association(klass, entry)
               "LEFT OUTER JOIN #{join_klass.table_name} AS #{entry['table_alias']} ON #{klass.table_name}.#{klass.primary_key} = #{entry['table_alias']}.#{association.primary_key_name}" + 
                 # XXX Is this valid?
-                (entry['conditions'] ? " AND (#{entry['conditions']})" : "") 
+                #PS - 2008-07-05
+                (entry['conditions'] ? " AND (#{entry['table_alias']}.#{entry['conditions']})" : "") 
             end
             
             source_string = "#{entry['table_alias']}.#{entry['field']}"
+ 
+             #PS - 2008-07-05
+            source_string = entry['func'] % source_string if entry['func']
+ 
             order_string = ("ORDER BY #{entry['order']}" if entry['order'])
             # We are using the field in an aggregate, so we don't want to add it to group_bys
             source_string = SQL_FUNCTIONS[ADAPTER]['group_concat']._interpolate(source_string, order_string)
